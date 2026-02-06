@@ -45,6 +45,43 @@ export interface Employee {
   salary: number;
 }
 
+export interface TrainingBatch {
+  id: string;
+  name: string;
+  code: string;
+  trainerId: string;
+  trainerName: string;
+  startDate: string;
+  endDate: string;
+  progress: number;
+  status: 'UPCOMING' | 'ACTIVE' | 'COMPLETED';
+  curriculum: string[];
+  timings: string; // e.g., "09:00 AM - 11:00 AM"
+}
+
+export interface Faculty {
+  id: string;
+  name: string;
+  designation: string;
+  specialty: string[];
+  experience: string;
+  email: string;
+  avatar?: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  activeBatches: string[]; // Array of batch IDs
+}
+
+export interface Intern {
+  id: string;
+  batchId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  college: string;
+  performanceScore: number;
+  joinDate: string;
+}
+
 export interface LeaveRequest {
   id: string;
   employeeId: string;
@@ -70,4 +107,7 @@ export interface HRMSData {
   employees: Employee[];
   leaves: LeaveRequest[];
   attendance: AttendanceRecord[];
+  batches: TrainingBatch[];
+  interns: Intern[];
+  faculties: Faculty[];
 }

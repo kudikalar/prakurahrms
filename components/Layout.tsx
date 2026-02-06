@@ -14,7 +14,8 @@ import {
   LogOut,
   Menu,
   X,
-  Bell
+  Bell,
+  BookOpenCheck
 } from 'lucide-react';
 
 const Layout: React.FC = () => {
@@ -30,6 +31,7 @@ const Layout: React.FC = () => {
     { name: 'Leaves', icon: CalendarDays, path: '/leaves', roles: ['SUPER_ADMIN', 'HR', 'MANAGER', 'TRAINER', 'EMPLOYEE', 'INTERN'] },
     { name: 'Payroll', icon: Wallet, path: '/payroll', roles: ['SUPER_ADMIN', 'HR'] },
     { name: 'Internships', icon: GraduationCap, path: '/internships', roles: ['SUPER_ADMIN', 'HR', 'TRAINER', 'INTERN'] },
+    { name: 'Faculty', icon: BookOpenCheck, path: '/faculty', roles: ['SUPER_ADMIN', 'HR', 'TRAINER'] },
     { name: 'Performance', icon: BarChart3, path: '/performance', roles: ['SUPER_ADMIN', 'HR', 'MANAGER', 'TRAINER', 'EMPLOYEE'] },
   ];
 
@@ -38,7 +40,7 @@ const Layout: React.FC = () => {
     navigate('/login');
   };
 
-  const filteredMenu = menuItems.filter(item => user && item.roles.includes(user.role));
+  const filteredMenu = menuItems.filter(item => user && item.roles.includes(item.roles.find(r => r === user.role) || ''));
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">

@@ -12,6 +12,7 @@ const Attendance = lazy(() => import('./pages/Attendance'));
 const Leaves = lazy(() => import('./pages/Leaves'));
 const Payroll = lazy(() => import('./pages/Payroll'));
 const Internships = lazy(() => import('./pages/Internships'));
+const FacultyPage = lazy(() => import('./pages/Faculty'));
 const Performance = lazy(() => import('./pages/Performance'));
 const Profile = lazy(() => import('./pages/Profile'));
 
@@ -38,13 +39,13 @@ const App: React.FC = () => {
                 <Layout />
               </ProtectedRoute>
             }>
-              {/* Corrected the index route component from <index Route ... /> to <Route index ... /> */}
               <Route index element={<Dashboard />} />
               <Route path="employees" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR', 'MANAGER']}><Employees /></ProtectedRoute>} />
               <Route path="attendance" element={<Attendance />} />
               <Route path="leaves" element={<Leaves />} />
               <Route path="payroll" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR']}><Payroll /></ProtectedRoute>} />
               <Route path="internships" element={<Internships />} />
+              <Route path="faculty" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR', 'TRAINER']}><FacultyPage /></ProtectedRoute>} />
               <Route path="performance" element={<Performance />} />
               <Route path="profile" element={<Profile />} />
             </Route>
