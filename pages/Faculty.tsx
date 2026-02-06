@@ -1,17 +1,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Briefcase, 
   Mail, 
   BookOpen, 
   Clock, 
   Plus, 
   Loader2, 
   Search,
-  ExternalLink,
   Award,
   CalendarDays,
-  MoreVertical,
   Edit,
   Trash2,
   Power,
@@ -53,13 +50,18 @@ const FacultyPage: React.FC = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [facultyData, batchData] = await Promise.all([
-      hrmsService.getFaculties(),
-      hrmsService.getBatches()
-    ]);
-    setFaculties(facultyData);
-    setBatches(batchData);
-    setLoading(false);
+    try {
+      const [facultyData, batchData] = await Promise.all([
+        hrmsService.getFaculties(),
+        hrmsService.getBatches()
+      ]);
+      setFaculties(facultyData);
+      setBatches(batchData);
+    } catch (err) {
+      console.error("Failed to fetch faculty data", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOpenAdd = () => {
@@ -93,7 +95,7 @@ const FacultyPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to remove this faculty member?')) return;
+    if (!window.confirm('Are you sure you want to remove this faculty member? This will delete their profile permanently.')) return;
     setLoading(true);
     await hrmsService.deleteFaculty(id);
     await fetchData();
@@ -108,6 +110,10 @@ const FacultyPage: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("File size should be less than 2MB");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, avatar: reader.result as string });
@@ -242,7 +248,7 @@ const FacultyPage: React.FC = () => {
                 <div className="space-y-4">
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Active Schedule & Timings</h4>
                   <div className="space-y-3">
-                    {faculty.activeBatches.length > 0 ? faculty.activeBatches.map(bId => {
+                    {faculty.activeBatches && faculty.activeBatches.length > 0 ? faculty.activeBatches.map(bId => {
                       const batch = batches.find(b => b.id === bId);
                       return batch ? (
                         <div key={bId} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group/item hover:bg-white hover:border-indigo-200 transition-all">

@@ -52,16 +52,17 @@ const Internships: React.FC = () => {
 
   const fetchInitialData = async () => {
     setLoading(true);
-    const [batchData, facultyData] = await Promise.all([
-      hrmsService.getBatches(),
-      hrmsService.getFaculties()
-    ]);
-    setBatches(batchData);
-    setAvailableFaculties(facultyData.filter(f => f.status === 'ACTIVE'));
-    
-    // Set default trainer if available
-    if (facultyData.length > 0) {
+    try {
+      const [batchData, facultyData] = await Promise.all([
+        hrmsService.getBatches(),
+        hrmsService.getFaculties()
+      ]);
+      setBatches(batchData);
+      
       const activeFaculties = facultyData.filter(f => f.status === 'ACTIVE');
+      setAvailableFaculties(activeFaculties);
+      
+      // Default to first active faculty if none selected
       if (activeFaculties.length > 0) {
         setNewBatch(prev => ({
           ...prev,
@@ -69,50 +70,60 @@ const Internships: React.FC = () => {
           trainerName: activeFaculties[0].name
         }));
       }
+    } catch (err) {
+      console.error("Failed to load initial academy data", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleCreateBatch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBatch.trainerId) {
-      alert("Please select a faculty member.");
+      alert("Please select an active faculty member.");
       return;
     }
     setLoading(true);
-    const code = `BATCH-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
-    await hrmsService.createBatch({ ...newBatch, code } as any);
-    
-    // Refresh batches
-    const batchData = await hrmsService.getBatches();
-    setBatches(batchData);
-    
-    setIsCreateModalOpen(false);
-    setLoading(false);
-    
-    // Reset form but keep trainer if needed or reset to first
-    setNewBatch({
-      name: '', 
-      trainerName: availableFaculties[0]?.name || '', 
-      trainerId: availableFaculties[0]?.id || '', 
-      status: 'ACTIVE' as const,
-      startDate: '', 
-      endDate: '', 
-      progress: 0, 
-      curriculum: ['Initial Training'],
-      timings: '10:00 AM - 12:00 PM'
-    });
+    try {
+      const code = `BATCH-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
+      await hrmsService.createBatch({ ...newBatch, code } as any);
+      
+      // Refresh batches
+      const batchData = await hrmsService.getBatches();
+      setBatches(batchData);
+      
+      setIsCreateModalOpen(false);
+      
+      // Reset form to first active faculty
+      if (availableFaculties.length > 0) {
+        setNewBatch({
+          name: '', 
+          trainerName: availableFaculties[0].name, 
+          trainerId: availableFaculties[0].id, 
+          status: 'ACTIVE' as const,
+          startDate: '', 
+          endDate: '', 
+          progress: 0, 
+          curriculum: ['Initial Training'],
+          timings: '10:00 AM - 12:00 PM'
+        });
+      }
+    } catch (err) {
+      alert("Error creating batch");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFacultyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const facultyId = e.target.value;
     const faculty = availableFaculties.find(f => f.id === facultyId);
     if (faculty) {
-      setNewBatch({
-        ...newBatch,
+      setNewBatch(prev => ({
+        ...prev,
         trainerId: faculty.id,
         trainerName: faculty.name
-      });
+      }));
     }
   };
 
@@ -178,7 +189,7 @@ const Internships: React.FC = () => {
             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Active Interns</p>
             <h4 className="text-3xl font-black text-slate-800">
               {batches.reduce((acc, b) => acc + (b.status === 'ACTIVE' ? 1 : 0), 0) * 12} 
-              <span className="text-sm font-bold text-slate-300 ml-1">Across Batches</span>
+              <span className="text-sm font-bold text-slate-300 ml-1">Est. Candidates</span>
             </h4>
           </div>
         </div>
@@ -221,18 +232,17 @@ const Internships: React.FC = () => {
                   <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-indigo-600 shadow-sm">
                     <BookOpen size={16} />
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-slate-400 uppercase">Lead Trainer</span>
-                    <span className="text-sm font-bold text-slate-800">{batch.trainerName}</span>
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">Lead Trainer</span>
+                    <span className="text-sm font-bold text-slate-800 truncate">{batch.trainerName}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-slate-600 bg-slate-50 p-3 rounded-2xl">
                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-indigo-600 shadow-sm">
-                    {/* Added missing Clock component from lucide-react */}
                     <Clock size={16} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-slate-400 uppercase">Schedule</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">Batch Timings</span>
                     <span className="text-sm font-bold text-slate-800">{batch.timings}</span>
                   </div>
                 </div>
@@ -300,10 +310,6 @@ const Internships: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest">Daily Timings</label>
-                  <input required placeholder="E.g. 10:00 AM - 12:00 PM" value={newBatch.timings} onChange={e => setNewBatch({...newBatch, timings: e.target.value})} className="w-full px-5 py-4 rounded-2xl border border-slate-200 outline-none focus:ring-4 focus:ring-indigo-100 font-bold" />
-                </div>
-                <div className="space-y-4">
                   <label className="block text-xs font-black text-slate-400 uppercase tracking-widest">Assign Faculty</label>
                   <select 
                     required
@@ -311,13 +317,21 @@ const Internships: React.FC = () => {
                     onChange={handleFacultyChange}
                     className="w-full px-5 py-4 rounded-2xl border border-slate-200 outline-none focus:ring-4 focus:ring-indigo-100 font-bold appearance-none bg-white"
                   >
-                    <option value="" disabled>Select Faculty</option>
-                    {availableFaculties.map(faculty => (
-                      <option key={faculty.id} value={faculty.id}>
-                        {faculty.name} ({faculty.designation})
-                      </option>
-                    ))}
+                    <option value="" disabled>Select Expert</option>
+                    {availableFaculties.length > 0 ? (
+                      availableFaculties.map(faculty => (
+                        <option key={faculty.id} value={faculty.id}>
+                          {faculty.name} ({faculty.designation})
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>No active faculty found</option>
+                    )}
                   </select>
+                </div>
+                <div className="space-y-4">
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest">Shift Timings</label>
+                  <input required placeholder="E.g. 09:00 AM - 12:00 PM" value={newBatch.timings} onChange={e => setNewBatch({...newBatch, timings: e.target.value})} className="w-full px-5 py-4 rounded-2xl border border-slate-200 outline-none focus:ring-4 focus:ring-indigo-100 font-bold" />
                 </div>
               </div>
               <button type="submit" disabled={loading} className="w-full bg-slate-900 text-white font-black py-5 rounded-3xl hover:bg-indigo-600 transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-[0.98]">

@@ -15,6 +15,7 @@ const Internships = lazy(() => import('./pages/Internships'));
 const FacultyPage = lazy(() => import('./pages/Faculty'));
 const Performance = lazy(() => import('./pages/Performance'));
 const Profile = lazy(() => import('./pages/Profile'));
+const CreativeLab = lazy(() => import('./pages/CreativeLab'));
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -48,6 +49,7 @@ const App: React.FC = () => {
               <Route path="faculty" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'HR', 'TRAINER']}><FacultyPage /></ProtectedRoute>} />
               <Route path="performance" element={<Performance />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="ai-lab" element={<CreativeLab />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" />} />
