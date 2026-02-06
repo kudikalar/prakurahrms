@@ -1,5 +1,5 @@
 {
-  "name": "prakura-it-solutions-hrms",
+  "name": "",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,7 +13,8 @@
     "lucide-react": "^0.563.0",
     "react-dom": "^19.2.4",
     "react": "^19.2.4",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "@google/genai": "^1.40.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

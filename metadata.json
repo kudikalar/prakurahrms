@@ -1,8 +1,8 @@
+
 {
-  "name": "Prakura IT Solutions HRMS",
-  "description": "A comprehensive, enterprise-grade Human Resource Management System for Prakura IT Solutions, featuring role-based access, attendance tracking, payroll processing with Indian standards, leave management, and intern/training modules.",
   "requestFramePermissions": [
     "camera",
-    "microphone"
+    "microphone",
+    "geolocation"
   ]
 }

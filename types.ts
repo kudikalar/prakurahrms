@@ -36,21 +36,25 @@ export interface Employee {
   empCode: string;
   firstName: string;
   lastName: string;
+  email: string;
   designation: string;
   department: string;
   joiningDate: string;
   employmentType: EmploymentType;
   status: 'ACTIVE' | 'INACTIVE';
+  salary: number;
 }
 
-export interface SalaryRecord {
-  basic: number;
-  hra: number;
-  allowance: number;
-  pf: number;
-  esi: number;
-  tds: number;
-  net: number;
+export interface LeaveRequest {
+  id: string;
+  employeeId: string;
+  type: string;
+  from: string;
+  to: string;
+  days: number;
+  reason: string;
+  status: LeaveStatus;
+  appliedDate: string;
 }
 
 export interface AttendanceRecord {
@@ -59,5 +63,11 @@ export interface AttendanceRecord {
   date: string;
   checkIn: string;
   checkOut?: string;
-  workingHours?: number;
+  status: 'PRESENT' | 'LATE' | 'ABSENT' | 'HALF_DAY';
+}
+
+export interface HRMSData {
+  employees: Employee[];
+  leaves: LeaveRequest[];
+  attendance: AttendanceRecord[];
 }
