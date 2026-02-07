@@ -1,8 +1,9 @@
 
 {
+  "name": "Prakura HRMS - Enterprise IT Solutions Suite",
+  "description": "A comprehensive, enterprise-grade Human Resource Management System tailored for IT training, internships, and software development firms. Features include core HR, real-time attendance, payroll processing, recruitment pipeline, and specialized training/internship management.",
   "requestFramePermissions": [
     "camera",
-    "microphone",
-    "geolocation"
+    "microphone"
   ]
 }
